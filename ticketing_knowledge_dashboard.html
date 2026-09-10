@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abdelsalam Database</title>
+
+<style>
+:root{
+  --bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#697586;--line:#e6e9ee;
+  --accent:#0b6b4f;--accent-soft:#e9f5f0;--nav:#f7f8fa;--shadow:0 1px 3px rgba(16,24,40,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,Arial,sans-serif}
+button,input,textarea{font:inherit}
+.app{display:flex;min-height:100vh}
+.side{
+  width:252px;background:#fff;border-right:1px solid var(--line);padding:18px 12px;
+  position:fixed;height:100vh;overflow:auto
+}
+.brand{font-size:22px;font-weight:800;padding:8px 12px 28px;letter-spacing:-.3px}
+.brand span{color:var(--accent)}
+.group{margin:20px 0}
+.group h4{font-size:11px;text-transform:uppercase;color:#98a2b3;letter-spacing:.08em;margin:0 12px 8px}
+.nav button{
+  display:block;width:100%;border:0;background:transparent;text-align:left;color:#344054;
+  padding:10px 12px;border-radius:6px;margin:2px 0;cursor:pointer
+}
+.nav button:hover,.nav button.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.main{margin-left:252px;flex:1;padding:24px 30px;max-width:1600px}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:25px}
+.search{flex:1}.search input{
+  width:100%;background:#fff;border:1px solid var(--line);border-radius:6px;
+  padding:11px 14px;outline:0
+}
+.btn{
+  border:1px solid var(--line);background:#fff;border-radius:6px;padding:9px 12px;
+  color:#344054;cursor:pointer
+}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.titlebar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.titlebar h1{margin:0 0 5px;font-size:26px;letter-spacing:-.4px}
+.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:8px;padding:17px;
+  box-shadow:var(--shadow);cursor:pointer;min-height:105px
+}
+.card:hover{border-color:#a7c9bb;transform:translateY(-1px)}
+.card .icon{font-size:22px}.card strong{display:block;margin-top:9px;font-size:14px}
+.card small{color:var(--muted);display:block;margin-top:5px}
+.panel{
+  background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);
+  padding:20px
+}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:12px}
+.markets{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:15px 0 22px}
+.market{border:1px solid var(--line);padding:14px;border-radius:7px;cursor:pointer;background:#fff}
+.market.active{border-color:#9bc8b6;background:var(--accent-soft)}
+.market strong{display:block}.market small{display:block;margin-top:5px}
+.accordion{border-top:1px solid var(--line)}
+.row{border-bottom:1px solid var(--line)}
+.rowhead{
+  display:flex;justify-content:space-between;align-items:center;padding:16px 6px;
+  cursor:pointer;font-weight:600
+}
+.arrow{color:#8a97a7}.body{display:none;padding:0 20px 18px 30px;white-space:pre-wrap;line-height:1.7}
+.row.open .body{display:block}
+.actions{display:flex;gap:7px;margin-top:12px}
+.empty{padding:35px;text-align:center;color:var(--muted)}
+.modal-bg{display:none;position:fixed;inset:0;background:#0007;z-index:9;align-items:center;justify-content:center;padding:20px}
+.modal{width:min(700px,100%);background:#fff;border-radius:9px;padding:20px}
+.field{margin:12px 0}.field label{display:block;font-weight:600;margin-bottom:6px}
+.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:10px}
+.field textarea{min-height:220px}.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.toast{position:fixed;right:20px;bottom:20px;background:#17202a;color:#fff;padding:10px 14px;border-radius:7px;display:none}
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.side{display:none}.main{margin-left:0;padding:15px}.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}.search{min-width:100%}.markets{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<div class="app">
+<aside class="side">
+ <div class="brand">✈ <span>Ticketing</span> Hub</div>
+ <div class="group"><h4>Main</h4><div class="nav">
+  <button onclick="home()">⌂ Main</button>
+ </div></div>
+ <div class="group"><h4>Knowledge Base</h4><div class="nav">
+  <button onclick="openModule('airlines')">✈ Airlines Fare Rules</button>
+  <button onclick="openModule('amadeus')">▣ Amadeus Entries</button>
+  <button onclick="openModule('galileo')">▣ Galileo</button>
+  <button onclick="openModule('tax')">▣ Tax</button>
+  <button onclick="openModule('self')">▣ Self Data</button>
+ </div></div>
+ <div class="group"><h4>Reference Sections</h4><div class="nav">
+  <button onclick="showReference('HR Policies & KPIs')">HR Policies & KPIs</button>
+  <button onclick="showReference('FFT Process')">FFT Process</button>
+  <button onclick="showReference('Operational Helpers')">Operational Helpers</button>
+  <button onclick="showReference('GDS Cheatsheet')">GDS Cheatsheet</button>
+  <button onclick="showReference('Manual Repo')">Manual Repo</button>
+ </div></div>
+ <div class="group"><h4>External Tools</h4><div class="nav">
+  <button onclick="showReference('Docs Converter')">Docs Converter</button>
+  <button onclick="showReference('Fulfillment Swap Idea')">Fulfillment Swap Idea</button>
+  <button onclick="showReference('Portals Password Reset')">Portals Password Reset</button>
+ </div></div>
+ <div class="group"><h4>Tools</h4><div class="nav">
+  <button onclick="exportData()">⇩ Export Backup</button>
+  <button onclick="openImport()">⇧ Import Backup</button>
+ </div></div>
+</aside>
+<main class="main">
+ <div class="top"><div class="search"><input id="search" placeholder="Search knowledge base..." oninput="render()"></div><button class="btn" onclick="toggleDark()">◐</button><button class="btn primary" onclick="addSection()">＋ Add</button></div>
+ <div id="view"></div>
+</main>
+</div>
+<div class="modal-bg" id="modal"><div class="modal"><h2 id="mtitle">Edit</h2><div id="mfields"></div><div class="modalfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveModal()">Save</button></div></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='ticketHub_v2';
+function sections(){return[
+ {title:'Online Check-in',content:''},{title:'Fare Rules and Taxes',content:''},{title:'SCH Policy',content:''},
+ {title:'Name Correction',content:''},{title:'Extra Service',content:''},{title:'Notes',content:''},
+ {title:'ACM - Duplicate',content:''},{title:'ACM - Visa Rejection',content:''},{title:'ADM',content:''}]}
+const initial={airlines:['Emirates','Flydubai','Flynas','Air Arabia','Jazeera'].map(n=>({name:n,markets:{KSA:sections(),UAE:sections(),KWI:sections()}})),
+ amadeus:[],galileo:[],tax:[],self:[]};
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||initial;
+let module='airlines',airline=0,market='KSA',edit=null;
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function persist(){localStorage.setItem(KEY,JSON.stringify(db))}
+function home(){module='home';render()}
+function showKnowledge(){module='kb';render()}
+function openModule(m){module=m;render()}
+function showReference(name){
+  module='reference';
+  document.getElementById('view').innerHTML =
+    `<div class="titlebar"><div><div class="crumb">Reference › ${esc(name)}</div><h1>${esc(name)}</h1>
+    <div class="muted">Reference section — ready for your editable knowledge and links.</div></div>
+    <button class="btn primary" onclick="addReference()">＋ Add</button></div>
+    <div class="panel"><div class="empty">This reference section is now part of your dashboard. Add your notes, links, commands and procedures using the Add button.</div></div>`;
+}
+function addReference(){ alert('Add your content from the dashboard using the same editable knowledge workflow.'); }
+
+function render(){
+ const q=document.getElementById('search').value.toLowerCase().trim(),v=document.getElementById('view');
+ if(module==='home'||module==='kb'){renderHome(v);return}
+ if(module==='airlines'){renderAirlines(v,q);return}
+ renderGeneric(v,q)
+}
+function renderHome(v){
+ const total=db.airlines.length+db.amadeus.length+db.galileo.length+db.tax.length+db.self.length;
+ v.innerHTML=`<div class="titlebar"><div><h1>Ticketing Knowledge Hub</h1><div class="muted">Your personal airline ticketing knowledge base</div></div></div>
+ <div class="cards">
+  <div class="card" onclick="openModule('airlines')">✈<strong>Airlines Fare Rules</strong><small>${db.airlines.length} airlines</small></div>
+  <div class="card" onclick="openModule('amadeus')">▣<strong>Amadeus Entries</strong><small>${db.amadeus.length} sections</small></div>
+  <div class="card" onclick="openModule('galileo')">▣<strong>Galileo</strong><small>${db.galileo.length} sections</small></div>
+  <div class="card" onclick="openModule('tax')">▣<strong>Tax</strong><small>${db.tax.length} sections</small></div>
+  <div class="card" onclick="openModule('self')">▣<strong>Self Data</strong><small>${db.self.length} sections</small></div>
+ </div>
+ <div class="panel"><h3>Quick start</h3><p class="muted">Choose a knowledge section from the sidebar. Airlines are organized by airline → KSA / UAE / KWI → expandable rules, matching the structure you requested.</p></div>`;
+}
+function renderAirlines(v,q){
+ let a=db.airlines[airline];if(!a){v.innerHTML='<div class="empty">No airline available.</div>';return}
+ let ss=a.markets[market]||[];if(q)ss=ss.filter(x=>(x.title+' '+x.content).toLowerCase().includes(q));
+ v.innerHTML=`<div class="titlebar"><div><div class="crumb">Knowledge Base › Airlines Fare Rules › ${esc(a.name)}</div><h1>${esc(a.name)} — ${market}</h1><div class="muted">Fare Rules | Market-specific knowledge</div></div><button class="btn" onclick="renameAirline()">Rename</button></div>
+ <div class="panel"><div class="markets">${['KSA','UAE','KWI'].map(m=>`<div class="market ${m===market?'active':''}" onclick="market='${m}';render()"><strong>${m==='KSA'?'🇸🇦':m==='UAE'?'🇦🇪':'🇰🇼'} ${m}</strong><small class="muted">${a.markets[m].length} sections</small></div>`).join('')}</div>
+ <div class="accordion">${ss.length?ss.map((s,i)=>row(s,i)).join(''):'<div class="empty">No matching rule.</div>'}</div></div>`;
+}
+function row(s,i){return `<div class="row" id="r${i}"><div class="rowhead" onclick="toggle(${i})"><span>${esc(s.title)}</span><span class="arrow">⌃</span></div><div class="body">${esc(s.content)||'<span class="muted">No information yet. Click Edit to add your knowledge.</span>'}<div class="actions"><button class="btn" onclick="event.stopPropagation();editSection(${i})">Edit</button><button class="btn" onclick="event.stopPropagation();copy(${i})">Copy</button><button class="btn" onclick="event.stopPropagation();del(${i})">Delete</button></div></div></div>`}
+function toggle(i){document.getElementById('r'+i)?.classList.toggle('open')}
+function renderGeneric(v,q){
+ let arr=db[module]||[];if(q)arr=arr.filter(x=>(x.title+' '+x.content).toLowerCase().includes(q));
+ v.innerHTML=`<div class="titlebar"><div><div class="crumb">Knowledge Base</div><h1>${module==='amadeus'?'Amadeus Entries':module==='galileo'?'Galileo':module==='tax'?'Tax':'Self Data'}</h1><div class="muted">Expandable knowledge sections</div></div></div>
+ <div class="panel"><div class="accordion">${arr.length?arr.map((s,i)=>rowGeneric(s,i)).join(''):'<div class="empty">No sections yet. Use ＋ Add to create one.</div>'}</div></div>`
+}
+function rowGeneric(s,i){return `<div class="row" id="g${i}"><div class="rowhead" onclick="document.getElementById('g${i}').classList.toggle('open')"><span>${esc(s.title)}</span><span class="arrow">⌃</span></div><div class="body">${esc(s.content)||'<span class="muted">Empty section.</span>'}<div class="actions"><button class="btn" onclick="event.stopPropagation();editGeneric(${i})">Edit</button><button class="btn" onclick="event.stopPropagation();copyGeneric(${i})">Copy</button><button class="btn" onclick="event.stopPropagation();deleteGeneric(${i})">Delete</button></div></div></div>`}
+function modal(title,fields){document.getElementById('mtitle').textContent=title;document.getElementById('mfields').innerHTML=fields;document.getElementById('modal').style.display='flex'}
+function closeModal(){document.getElementById('modal').style.display='none';edit=null}
+function addSection(){
+ edit={type:module,index:null};
+ if(module==='airlines') edit.type='airlines';
+ modal('Add Knowledge Section',`<div class="field"><label>Section title</label><input id="ft" placeholder="e.g. Partially Used Ticket Reissue"></div><div class="field"><label>Knowledge / Rules / Entries</label><textarea id="fc" placeholder="Write your notes, commands, examples and warnings here..."></textarea></div>`)
+}
+function editSection(i){let s=db.airlines[airline].markets[market][i];edit={type:'airline',index:i};modal('Edit Rule',`<div class="field"><label>Section title</label><input id="ft" value="${esc(s.title)}"></div><div class="field"><label>Knowledge</label><textarea id="fc">${esc(s.content)}</textarea></div>`)}
+function editGeneric(i){let s=db[module][i];edit={type:module,index:i};modal('Edit Section',`<div class="field"><label>Section title</label><input id="ft" value="${esc(s.title)}"></div><div class="field"><label>Knowledge</label><textarea id="fc">${esc(s.content)}</textarea></div>`)}
+function saveModal(){
+ let t=document.getElementById('ft')?.value.trim(),c=document.getElementById('fc')?.value||'';
+ if(edit?.type==='rename'){
+   const n=document.getElementById('fn')?.value.trim();
+   if(n){db.airlines[airline].name=n;persist();closeModal();render();toast('Renamed')}
+   return;
+ }
+ if(!t)return alert('Title required.');
+ if(edit.type==='airline'){db.airlines[airline].markets[market][edit.index]={title:t,content:c}}
+ else if(edit.type==='airlines'){db.airlines[airline].markets[market].push({title:t,content:c})}
+ else {if(edit.index===null)db[edit.type].push({title:t,content:c});else db[edit.type][edit.index]={title:t,content:c}}
+ persist();closeModal();render();toast('Saved')}
+function del(i){if(confirm('Delete this section?')){db.airlines[airline].markets[market].splice(i,1);persist();render()}}
+function deleteGeneric(i){if(confirm('Delete this section?')){db[module].splice(i,1);persist();render()}}
+function copy(i){navigator.clipboard.writeText(db.airlines[airline].markets[market][i].content||'').then(()=>toast('Copied'))}
+function copyGeneric(i){navigator.clipboard.writeText(db[module][i].content||'').then(()=>toast('Copied'))}
+function renameAirline(){modal('Rename Airline',`<div class="field"><label>Airline name</label><input id="fn" value="${esc(db.airlines[airline].name)}"></div>`);edit={type:'rename'}}
+function saveRename(){ }
+function exportData(){let b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='ticketing-knowledge-backup.json';a.click();toast('Backup exported')}
+function openImport(){alert('Import can be added next; the current version already supports JSON export.')}
+function toggleDark(){document.body.style.filter=document.body.style.filter?'':'brightness(.86)'}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1500)}
+render();
+</script>
+</body></html>
