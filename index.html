@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Abdelsalam Database - Ticketing Hub</title>
+
+<style>
+:root {
+  --bg:#f4f6f8; --card:#fff; --text:#17202a; --muted:#697586; --line:#e6e9ee;
+  --accent:#0b6b4f; --accent-soft:#e9f5f0; --nav:#f7f8fa; --shadow:0 1px 3px rgba(16,24,40,.05);
+}
+body.dark {
+  --bg:#0f172a; --card:#1e293b; --text:#f8fafc; --muted:#94a3b8; --line:#334155;
+  --accent:#10b981; --accent-soft:#064e3b; --nav:#1e293b;
+}
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--text); font:14px Inter,Arial,sans-serif; transition: background 0.2s, color 0.2s }
+button, input, textarea { font:inherit }
+.app { display:flex; min-height:100vh }
+.side {
+  width:252px; background:var(--card); border-right:1px solid var(--line); padding:18px 12px;
+  position:fixed; height:100vh; overflow:auto
+}
+.brand { font-size:22px; font-weight:800; padding:8px 12px 28px; letter-spacing:-.3px }
+.brand span { color:var(--accent) }
+.group { margin:20px 0 }
+.group h4 { font-size:11px; text-transform:uppercase; color:var(--muted); letter-spacing:.08em; margin:0 12px 8px }
+.nav button {
+  display:block; width:100%; border:0; background:transparent; text-align:left; color:var(--text);
+  padding:10px 12px; border-radius:6px; margin:2px 0; cursor:pointer
+}
+.nav button:hover, .nav button.active { background:var(--accent-soft); color:var(--accent); font-weight:600 }
+.main { margin-left:252px; flex:1; padding:24px 30px; max-width:1600px }
+.top { display:flex; gap:10px; align-items:center; margin-bottom:25px }
+.search { flex:1 }
+.search input {
+  width:100%; background:var(--card); border:1px solid var(--line); border-radius:6px;
+  padding:11px 14px; outline:0; color:var(--text)
+}
+.btn {
+  border:1px solid var(--line); background:var(--card); border-radius:6px; padding:9px 12px;
+  color:var(--text); cursor:pointer
+}
+.btn.primary { background:var(--accent); border-color:var(--accent); color:#fff }
+.btn.danger { background:#ef4444; border-color:#ef4444; color:#fff }
+.titlebar { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:10px }
+.titlebar h1 { margin:0 0 5px; font-size:26px; letter-spacing:-.4px }
+.muted { color:var(--muted) }
+.cards { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:22px }
+.card {
+  background:var(--card); border:1px solid var(--line); border-radius:8px; padding:17px;
+  box-shadow:var(--shadow); cursor:pointer; min-height:105px
+}
+.card:hover { border-color:var(--accent); transform:translateY(-1px) }
+.card strong { display:block; margin-top:9px; font-size:14px }
+.card small { color:var(--muted); display:block; margin-top:5px }
+.panel {
+  background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:var(--shadow);
+  padding:20px
+}
+.crumb { font-size:13px; color:var(--muted); margin-bottom:12px }
+.markets { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:15px 0 22px }
+.market { border:1px solid var(--line); padding:14px; border-radius:7px; cursor:pointer; background:var(--card) }
+.market.active { border-color:var(--accent); background:var(--accent-soft) }
+.market strong { display:block }
+.market small { display:block; margin-top:5px }
+.accordion { border-top:1px solid var(--line) }
+.row { border-bottom:1px solid var(--line) }
+.rowhead {
+  display:flex; justify-content:space-between; align-items:center; padding:16px 6px;
+  cursor:pointer; font-weight:600
+}
+.arrow { color:var(--muted) }
+.body { display:none; padding:0 20px 18px 30px; white-space:pre-wrap; line-height:1.7 }
+.row.open .body { display:block }
+.actions { display:flex; gap:7px; margin-top:12px }
+.empty { padding:35px; text-align:center; color:var(--muted) }
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9; align-items:center; justify-content:center; padding:20px }
+.modal { width:min(700px,100%); background:var(--card); border-radius:9px; padding:20px; border:1px solid var(--line) }
+.field { margin:12px 0 }
+.field label { display:block; font-weight:600; margin-bottom:6px }
+.field input, .field textarea { width:100%; border:1px solid var(--line); border-radius:6px; padding:10px; background:var(--bg); color:var(--text) }
+.field textarea { min-height:220px }
+.modalfoot { display:flex; justify-content:flex-end; gap:8px; margin-top:15px }
+.toast { position:fixed; right:20px; bottom:20px; background:#17202a; color:#fff; padding:10px 14px; border-radius:7px; display:none; z-index:99 }
+.airline-select { padding:8px 12px; border-radius:6px; border:1px solid var(--line); background:var(--card); color:var(--text); margin-bottom:15px; width:100% }
+table.data-table { width:100%; border-collapse:collapse; margin:10px 0 }
+table.data-table th, table.data-table td { border:1px solid var(--line); padding:10px; text-align:left }
+table.data-table th { background:var(--accent-soft) }
+@media(max-width:1050px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.side{display:none}.main{margin-left:0;padding:15px}.cards{grid-template-columns:1fr}.top{flex-wrap:wrap}.search{min-width:100%}.markets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+ <div class="brand">✈ <span>Ticketing</span> Hub</div>
+ <div class="group"><h4>Main</h4><div class="nav">
+  <button onclick="home()">⌂ Main</button>
+ </div></div>
+ <div class="group"><h4>Knowledge Base</h4><div class="nav">
+  <button onclick="openModule('airlines')">✈ Airlines Fare Rules</button>
+  <button onclick="openModule('amadeus')">▣ Amadeus Entries</button>
+  <button onclick="openModule('galileo')">▣ Galileo</button>
+  <button onclick="openModule('tax')">▣ Tax</button>
+  <button onclick="openModule('self')">▣ Self Data</button>
+ </div></div>
+ <div class="group"><h4>Reference Sections</h4><div class="nav">
+  <button onclick="showReference('HR Policies & KPIs')">HR Policies & KPIs</button>
+  <button onclick="showReference('FFT Process')">FFT Process</button>
+  <button onclick="showReference('Operational Helpers')">Operational Helpers</button>
+  <button onclick="showReference('GDS Cheatsheet')">GDS Cheatsheet</button>
+  <button onclick="showReference('Manual Repo')">Manual Repo</button>
+ </div></div>
+ <div class="group"><h4>External Tools</h4><div class="nav">
+  <button onclick="showReference('Docs Converter')">Docs Converter</button>
+  <button onclick="showReference('Fulfillment Swap Idea')">Fulfillment Swap Idea</button>
+  <button onclick="showReference('Portals Password Reset')">Portals Password Reset</button>
+ </div></div>
+ <div class="group"><h4>Tools</h4><div class="nav">
+  <button onclick="exportData()">⇩ Export Backup</button>
+  <button onclick="openImport()">⇧ Import Backup</button>
+ </div></div>
+</aside>
+<main class="main">
+ <div class="top">
+  <div class="search"><input id="search" placeholder="Search knowledge base..." oninput="render()"></div>
+  <button class="btn" onclick="toggleDark()">◐ Mode</button>
+  <button class="btn primary" onclick="addSection()">＋ Add</button>
+ </div>
+ <div id="view"></div>
+</main>
+</div>
+
+<div class="modal-bg" id="modal">
+ <div class="modal">
+  <h2 id="mtitle">Edit</h2>
+  <div id="mfields"></div>
+  <div class="modalfoot">
+   <button class="btn" onclick="closeModal()">Cancel</button>
+   <button class="btn primary" onclick="saveModal()">Save</button>
+  </div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='ticketHub_v3';
+function sections(){
+ return [
+  {title:'Online Check-in', content:''},
+  {title:'Fare Rules and Taxes', content:''},
+  {title:'SCH Policy', content:''},
+  {title:'Name Correction', content:''},
+  {title:'Extra Service', content:''},
+  {title:'Notes', content:''},
+  {title:'ACM - Duplicate', content:''},
+  {title:'ACM - Visa Rejection', content:''},
+  {title:'ADM', content:''}
+ ];
+}
+
+const voidRulesData = `AIRLINES / MARKET | VOID RULE
+----------------|---------------------------------------------
+FZ, NE, MS, BS  | Void within 24 Hours not allowed.
+SM              | EGY Market Void not allowed.
+EK              | Void within 1 Hour from Departure not allowed.
+A3              | ( P – U – T – S ) Classes are not voidable.
+RQ, R5          | Void not Allowed.
+No–Show time    | NP, NE, MS, A3, FZ, SV, GF.
+
+NOTE: ALWAYS CHECK FARE RULES TO CONFIRM IF AIRLINE/CLASS ARE VOIDABLE.`;
+
+const initial = {
+ airlines: ['Emirates','Flydubai','Flynas','Air Arabia','Jazeera'].map(n=>({name:n, markets:{KSA:sections(), UAE:sections(), KWI:sections()}})),
+ amadeus: [], galileo: [], tax: [], self: [],
+ references: {
+   'GDS Cheatsheet': [{title: 'Airline Void Rules Matrix', content: voidRulesData}]
+ }
+};
+
+let db = JSON.parse(localStorage.getItem(KEY)||'null') || initial;
+let module = 'airlines', airline = 0, market = 'KSA', currentRef = '', edit = null;
+
+const esc = s => String(s??'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+function persist(){ localStorage.setItem(KEY, JSON.stringify(db)); }
+function home(){ module='home'; render(); }
+function openModule(m){ module=m; render(); }
+
+function showReference(name){
+ module = 'reference';
+ currentRef = name;
+ if (!db.references) db.references = {};
+ if (!db.references[name]) db.references[name] = [];
+ render();
+}
+
+function render(){
+ const q = document.getElementById('search').value.toLowerCase().trim();
+ const v = document.getElementById('view');
+ if(module==='home') { renderHome(v); return; }
+ if(module==='airlines') { renderAirlines(v, q); return; }
+ if(module==='reference') { renderReference(v, q); return; }
+ renderGeneric(v, q);
+}
+
+function renderHome(v){
+ v.innerHTML = `<div class="titlebar"><div><h1>Ticketing Knowledge Hub</h1><div class="muted">Your personal airline ticketing knowledge base</div></div></div>
+ <div class="cards">
+  <div class="card" onclick="openModule('airlines')">✈<strong>Airlines Fare Rules</strong><small>${db.airlines.length} airlines</small></div>
+  <div class="card" onclick="openModule('amadeus')">▣<strong>Amadeus Entries</strong><small>${(db.amadeus||[]).length} sections</small></div>
+  <div class="card" onclick="openModule('galileo')">▣<strong>Galileo</strong><small>${(db.galileo||[]).length} sections</small></div>
+  <div class="card" onclick="openModule('tax')">▣<strong>Tax</strong><small>${(db.tax||[]).length} sections</small></div>
+  <div class="card" onclick="openModule('self')">▣<strong>Self Data</strong><small>${(db.self||[]).length} sections</small></div>
+ </div>
+ <div class="panel"><h3>Quick Start</h3><p class="muted">Select a section from the navigation menu on the left to review or edit your procedures and fare rules.</p></div>`;
+}
+
+function renderAirlines(v, q){
+ if(!db.airlines.length){ v.innerHTML='<div class="empty">No airlines available. <button class="btn primary" onclick="addAirline()">Add Airline</button></div>'; return; }
+ let a = db.airlines[airline] || db.airlines[0];
+ let ss = a.markets[market] || [];
+ if(q) ss = ss.filter(x => (x.title + ' ' + x.content).toLowerCase().includes(q));
+
+ v.innerHTML = `<div class="titlebar">
+  <div>
+   <div class="crumb">Knowledge Base › Airlines Fare Rules › ${esc(a.name)}</div>
+   <h1>${esc(a.name)} — ${market}</h1>
+   <div class="muted">Fare Rules | Market-specific knowledge</div>
+  </div>
+  <div style="display:flex; gap:8px;">
+   <button class="btn" onclick="addAirline()">＋ Add Airline</button>
+   <button class="btn" onclick="renameAirline()">Rename</button>
+   <button class="btn danger" onclick="deleteAirline()">Delete</button>
+  </div>
+ </div>
+ <select class="airline-select" onchange="airline=this.value;render()">
+  ${db.airlines.map((item, idx) => `<option value="${idx}" ${idx==airline?'selected':''}>${esc(item.name)}</option>`).join('')}
+ </select>
+ <div class="panel">
+  <div class="markets">${['KSA','UAE','KWI'].map(m=>`<div class="market ${m===market?'active':''}" onclick="market='${m}';render()"><strong>${m==='KSA'?'🇸🇦':m==='UAE'?'🇦🇪':'🇰🇼'} ${m}</strong><small class="muted">${a.markets[m]?a.markets[m].length:0} sections</small></div>`).join('')}</div>
+  <div class="accordion">${ss.length ? ss.map((s,i)=>row(s,i)).join('') : '<div class="empty">No matching rules found.</div>'}</div>
+ </div>`;
+}
+
+function renderReference(v, q){
+ let arr = db.references[currentRef] || [];
+ if(q) arr = arr.filter(x => (x.title + ' ' + x.content).toLowerCase().includes(q));
+ v.innerHTML = `<div class="titlebar">
+  <div><div class="crumb">Reference › ${esc(currentRef)}</div><h1>${esc(currentRef)}</h1><div class="muted">Editable reference information & links</div></div>
+  <button class="btn primary" onclick="addSection()">＋ Add</button>
+ </div>
+ <div class="panel"><div class="accordion">${arr.length ? arr.map((s,i)=>rowGeneric(s,i)).join('') : '<div class="empty">Section empty. Click ＋ Add to append content.</div>'}</div></div>`;
+}
+
+function renderGeneric(v, q){
+ let arr = db[module] || [];
+ if(q) arr = arr.filter(x => (x.title + ' ' + x.content).toLowerCase().includes(q));
+ v.innerHTML = `<div class="titlebar">
+  <div><div class="crumb">Knowledge Base</div><h1>${module==='amadeus'?'Amadeus Entries':module==='galileo'?'Galileo':module==='tax'?'Tax':'Self Data'}</h1><div class="muted">System commands and entries</div></div>
+  <button class="btn primary" onclick="addSection()">＋ Add</button>
+ </div>
+ <div class="panel"><div class="accordion">${arr.length ? arr.map((s,i)=>rowGeneric(s,i)).join('') : '<div class="empty">No sections added yet.</div>'}</div></div>`;
+}
+
+function row(s, i){
+ return `<div class="row" id="r${i}"><div class="rowhead" onclick="toggle('r${i}')"><span>${esc(s.title)}</span><span class="arrow">⌃</span></div><div class="body">${esc(s.content)||"<em>No details provided.</em>"}<div class="actions"><button class="btn" onclick="event.stopPropagation();editSection(${i})">Edit</button><button class="btn" onclick="event.stopPropagation();copy(${i})">Copy</button><button class="btn danger" onclick="event.stopPropagation();del(${i})">Delete</button></div></div></div>`;
+}
+
+function rowGeneric(s, i){
+ return `<div class="row" id="g${i}"><div class="rowhead" onclick="toggle('g${i}')"><span>${esc(s.title)}</span><span class="arrow">⌃</span></div><div class="body">${esc(s.content)||"<em>No details provided.</em>"}<div class="actions"><button class="btn" onclick="event.stopPropagation();editGeneric(${i})">Edit</button><button class="btn" onclick="event.stopPropagation();copyGeneric(${i})">Copy</button><button class="btn danger" onclick="event.stopPropagation();deleteGeneric(${i})">Delete</button></div></div></div>`;
+}
+
+function toggle(id){ document.getElementById(id)?.classList.toggle('open'); }
+
+function modal(title, fields){
+ document.getElementById('mtitle').textContent = title;
+ document.getElementById('mfields').innerHTML = fields;
+ document.getElementById('modal').style.display = 'flex';
+}
+function closeModal(){ document.getElementById('modal').style.display = 'none'; edit = null; }
+
+function addSection(){
+ edit = { type: module, index: null };
+ modal('Add Knowledge Section', `<div class="field"><label>Title</label><input id="ft" placeholder="e.g. Void Rules"></div><div class="field"><label>Content</label><textarea id="fc" placeholder="Enter notes or specifications..."></textarea></div>`);
+}
+
+function addAirline(){
+ const name = prompt('Enter New Airline Name:');
+ if(!name) return;
+ db.airlines.push({ name: name.trim(), markets: { KSA: sections(), UAE: sections(), KWI: sections() } });
+ airline = db.airlines.length - 1;
+ persist(); render(); toast('Airline Created');
+}
+
+function renameAirline(){
+ modal('Rename Airline', `<div class="field"><label>Airline Name</label><input id="fn" value="${esc(db.airlines[airline].name)}"></div>`);
+ edit = { type: 'rename' };
+}
+
+function deleteAirline(){
+ if(db.airlines.length <= 1) return alert('At least one airline is required.');
+ if(confirm(`Delete ${db.airlines[airline].name}?`)){
+  db.airlines.splice(airline, 1);
+  airline = 0;
+  persist(); render(); toast('Airline Deleted');
+ }
+}
+
+function editSection(i){
+ let s = db.airlines[airline].markets[market][i];
+ edit = { type: 'airline', index: i };
+ modal('Edit Rule', `<div class="field"><label>Title</label><input id="ft" value="${esc(s.title)}"></div><div class="field"><label>Content</label><textarea id="fc">${esc(s.content)}</textarea></div>`);
+}
+
+function editGeneric(i){
+ let target = module === 'reference' ? db.references[currentRef] : db[module];
+ let s = target[i];
+ edit = { type: module, index: i };
+ modal('Edit Section', `<div class="field"><label>Title</label><input id="ft" value="${esc(s.title)}"></div><div class="field"><label>Content</label><textarea id="fc">${esc(s.content)}</textarea></div>`);
+}
+
+function saveModal(){
+ if(edit?.type === 'rename'){
+  const n = document.getElementById('fn')?.value.trim();
+  if(n){ db.airlines[airline].name = n; persist(); closeModal(); render(); toast('Renamed'); }
+  return;
+ }
+ const t = document.getElementById('ft')?.value.trim();
+ const c = document.getElementById('fc')?.value || '';
+ if(!t) return alert('Title required.');
+
+ if(edit.type === 'airline'){
+  db.airlines[airline].markets[market][edit.index] = { title: t, content: c };
+ } else if(edit.type === 'airlines'){
+  db.airlines[airline].markets[market].push({ title: t, content: c });
+ } else if(edit.type === 'reference'){
+  if(edit.index === null) db.references[currentRef].push({ title: t, content: c });
+  else db.references[currentRef][edit.index] = { title: t, content: c };
+ } else {
+  if(edit.index === null) db[edit.type].push({ title: t, content: c });
+  else db[edit.type][edit.index] = { title: t, content: c };
+ }
+
+ persist(); closeModal(); render(); toast('Saved');
+}
+
+function del(i){ if(confirm('Delete rule?')){ db.airlines[airline].markets[market].splice(i,1); persist(); render(); } }
+function deleteGeneric(i){
+ if(confirm('Delete section?')){
+  if(module === 'reference') db.references[currentRef].splice(i,1);
+  else db[module].splice(i,1);
+  persist(); render();
+ }
+}
+
+function copy(i){ navigator.clipboard.writeText(db.airlines[airline].markets[market][i].content||'').then(()=>toast('Copied')); }
+function copyGeneric(i){
+ let content = module === 'reference' ? db.references[currentRef][i].content : db[module][i].content;
+ navigator.clipboard.writeText(content||'').then(()=>toast('Copied'));
+}
+
+function exportData(){
+ let b = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'}), a = document.createElement('a');
+ a.href = URL.createObjectURL(b); a.download = 'ticketing-knowledge-backup.json'; a.click();
+ toast('Backup Exported');
+}
+
+function openImport(){
+ const input = document.createElement('input');
+ input.type = 'file';
+ input.accept = '.json';
+ input.onchange = e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+   try {
+    const data = JSON.parse(ev.target.result);
+    if(data && typeof data === 'object'){
+     db = data; persist(); render(); toast('Data Imported Successfully');
+    }
+   } catch(err) { alert('Invalid Backup File'); }
+  };
+  reader.readAsText(file);
+ };
+ input.click();
+}
+
+function toggleDark(){ document.body.classList.toggle('dark'); }
+function toast(t){ let x=document.getElementById('toast'); x.textContent=t; x.style.display='block'; setTimeout(()=>x.style.display='none', 1600); }
+
+render();
+</script>
+</body>
+</html>
